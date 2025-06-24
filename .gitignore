@@ -1,0 +1,16 @@
+# Ignore Python virtual environment
+venv/
+
+# Ignore environment variables
+.env
+chroma_db/
+# Python bytecode and cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+
+# VSCode and system files (optional)
+.vscode/
+.DS_Store

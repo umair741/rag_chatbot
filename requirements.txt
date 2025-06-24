@@ -1,0 +1,27 @@
+fastapi==0.110.0
+uvicorn==0.29.0
+
+python-dotenv==1.0.1
+pypdf==5.6.1
+# Core LangChain
+langchain==0.1.17            # requires aiohttp>=3.8.3,<4.0 and yarl<2.0 :contentReference[oaicite:0]{index=0}
+langchain-community==0.0.36  # matches langchain>=0.1.17 requirement :contentReference[oaicite:1]{index=1}
+langchain-google-genai==0.0.8
+
+# Vector store & runtime
+chromadb==0.4.24             # tested with onnxruntime>=1.14.1 :contentReference[oaicite:2]{index=2}
+onnxruntime>=1.14.1
+
+# Embeddings
+sentence-transformers==2.7.0 # recommends torch>=1.11.0 and transformers>=4.41.0 :contentReference[oaicite:3]{index=3}
+
+# LLM support
+transformers==4.41.0         # compatible with sentence-transformers v2.7.0 :contentReference[oaicite:4]{index=4}
+torch==2.2.2                 # CPU/GPU support for sentence-transformers
+
+# Tokenizer utilities
+tiktoken==0.7.0
+
+# Explicit HTTP deps to prevent version conflicts
+aiohttp==3.8.3               # satisfies langchain’s HTTP requirements :contentReference[oaicite:5]{index=5}
+yarl==1.9.4                  # necessary for aiohttp<4.0 :contentReference[oaicite:6]{index=6}
