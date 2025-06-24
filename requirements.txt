@@ -12,6 +12,9 @@ langchain-google-genai==0.0.8
 chromadb==0.4.24             # tested with onnxruntime>=1.14.1 :contentReference[oaicite:2]{index=2}
 onnxruntime>=1.14.1
 
+jinja2
+python-multipart
+
 # Embeddings
 sentence-transformers==2.7.0 # recommends torch>=1.11.0 and transformers>=4.41.0 :contentReference[oaicite:3]{index=3}
 
