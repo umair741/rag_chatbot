@@ -1,121 +1,183 @@
-RAG Chatbot with Gemini, FastAPI, LangChain, and ChromaDB
-This project is a Retrieval-Augmented Generation (RAG) chatbot that processes PDF documents, stores their embeddings in ChromaDB, and generates context-aware responses using Google's Gemini API, LangChain, and FastAPI. The chatbot retrieves relevant information from a vectorized knowledge base of PDF documents and supports interaction via a command-line interface (CLI), a FastAPI-based API, or a basic web UI. PDF documents must be manually placed in the books/english folder, as the project does not include a file upload UI.
-Tech Stack
+# RAG Chatbot with Gemini, FastAPI, LangChain, and ChromaDB
 
-Python 3.10: Core programming language.
-FastAPI: Asynchronous web framework for the API.
-LangChain: Framework for managing the RAG pipeline, document processing, and conversational workflows.
-Google Gemini API (gemini-2.0-flash): Large language model for response generation.
-HuggingFace Embeddings (all-MiniLM-L6-v2): For creating document embeddings.
-ChromaDB: Persistent vector database for storing embeddings.
-PyPDF: Library for extracting text from PDFs.
-Uvicorn: ASGI server for running the FastAPI application.
-python-dotenv: For loading environment variables from a .env file.
-Jinja2: Template engine for rendering the basic web UI in the templates folder.
+This project is a Retrieval-Augmented Generation (RAG) chatbot that processes PDF documents, stores their embeddings in ChromaDB, and generates context-aware responses using Google's Gemini API, LangChain, and FastAPI. The chatbot retrieves relevant information from a vectorized knowledge base of PDF documents and supports interaction via a command-line interface (CLI), a FastAPI-based API, or a basic web UI. **PDF documents must be manually placed in the `books/english` folder**, as the project does not include a file upload UI.
 
-Features
+---
 
-PDF Processing: Extracts text from PDFs in the books/english folder.
-RAG Pipeline: Combines document retrieval with generative responses.
-ChromaDB Vector Store: Persists embeddings for efficient similarity searches.
-Conversational Memory: Maintains chat history for context-aware responses.
-FastAPI Backend: Provides a scalable API.
-CLI Interface: Allows testing via command-line.
-Basic Web UI: Simple web interface in the templates folder (no file upload functionality).
-Manual PDF Placement: Requires PDFs to be manually placed in books/english.
+## 💡 Tech Stack
 
-Prerequisites
+* **Python 3.10**: Core programming language
+* **FastAPI**: Asynchronous web framework for the API
+* **LangChain**: Framework for managing the RAG pipeline and workflows
+* **Google Gemini API (`gemini-2.0-flash`)**: For response generation
+* **HuggingFace Embeddings (`all-MiniLM-L6-v2`)**: For creating document embeddings
+* **ChromaDB**: Persistent vector database
+* **PyPDF**: For PDF text extraction
+* **Uvicorn**: ASGI server for FastAPI
+* **python-dotenv**: Environment variable loader
+* **Jinja2**: For basic HTML templates (web UI)
 
-Python 3.9 or higher
-Google Cloud account with a Gemini API key
-Git (optional, for cloning the repository)
-PDF documents in the books/english folder
-A .env file with your Gemini API key (see Setup Environment Variables below)
+---
 
-Installation and Running the Project
+## 🌟 Features
 
-Clone the RepositoryClone the project from GitHub and navigate to the project directory:
+* 📄 **PDF Processing**: Extracts text from PDFs in `books/english`
+* 💡 **RAG Pipeline**: Combines document retrieval with LLM generation
+* 📊 **ChromaDB Vector Store**: Efficient similarity search
+* ⚖️ **Conversational Memory**: Maintains history for context
+* 🚀 **FastAPI Backend**: RESTful and async
+* ⌨️ **CLI Support**: Ask questions from terminal
+* 📃 **Web UI**: Basic HTML-based interface (no file upload)
+
+---
+
+## ✅ Prerequisites
+
+* Python 3.9 or higher
+* Google Cloud account with Gemini API key
+* PDF documents in the `books/english` folder
+* `.env` file with your Gemini API key (see below)
+
+---
+
+## 🚧 Installation & Setup
+
+### 1. Clone the Repository
+
+```bash
 git clone https://github.com/your-username/your-repo.git
 cd your-repo
+```
 
+### 2. Create a Virtual Environment
 
-Set Up a Virtual EnvironmentCreate and activate a virtual environment to isolate dependencies:
+```bash
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
 
+# Activate
+# Windows:
+venv\Scripts\activate
+# macOS/Linux:
+source venv/bin/activate
+```
 
-Install DependenciesThe project includes a requirements.txt file with all necessary dependencies. Install them using:
+### 3. Install Dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
+### 4. Set Up Environment Variables
 
-Setup Environment VariablesYou must create a .env file in the project root to store your Gemini API key, which is required for the Google Gemini API. Add the following line to the .env file:
+Create a `.env` file in the root with your Gemini API key:
 
+```env
 GOOGLE_API_KEY=your_google_api_key
+```
 
-Replace your_google_api_key with your actual API key from Google AI Studio. Ensure the .env file is not committed to version control (e.g., add it to .gitignore).
+---
 
-Prepare PDF DocumentsPlace your PDF files in the books/english folder. The project does not include a file upload UI, so PDFs must be manually added to this folder for processing.
+## 📚 Add Your Documents
 
+> **No file upload UI is provided.** You must manually add your `.pdf` files into:
 
-Running the Project
+```
+books/english/
+```
 
-Process PDFsProcess the PDFs in books/english to extract text, generate embeddings, and store them in ChromaDB:
-python process_pdfs.py
+---
 
-This creates embeddings and persists them in the chroma_db directory.
+## 🚀 Running the Project
 
-Run the API and Web UIStart the FastAPI server to enable the API and basic web UI:
+### Step 1: Process PDFs
+
+```bash
+python processing.py
+```
+
+This extracts text, generates embeddings, and stores them in `chroma_db/`
+
+### Step 2: Start the API
+
+```bash
 uvicorn main:app --reload
+```
 
+* API: [http://localhost:8000/docs](http://localhost:8000/docs)
+* Web UI: [http://localhost:8000/](http://localhost:8000/)
 
-API: Available at http://localhost:8000.
-Web UI: Access the basic UI (if configured) at http://localhost:8000 (e.g., / or /chat).
+---
 
+## 🎧 Interact with the Bot
 
-Interact via APISend POST requests to the /chat endpoint using curl, Postman, or a custom frontend:
-curl -X POST "http://localhost:8000/chat" -H "Content-Type: application/json" -d '{"message": "What is RAG?"}'
+### 🛠️ Via API
 
-Responses include the answer and source metadata (e.g., filename and page number).
+```bash
+curl -X POST "http://localhost:8000/chat" \
+-H "Content-Type: application/json" \
+-d '{"message": "What is RAG?"}'
+```
 
-Interact via Web UIOpen a browser and navigate to http://localhost:8000 to use the basic web UI from the templates folder. Enter queries to receive responses. Note: You cannot upload PDFs via the UI; place them in books/english manually.
+### 🌐 Via Web UI
 
-Interact via CLIRun the CLI for command-line interaction:
+Go to: [http://localhost:8000/](http://localhost:8000/)
+(Type your question in the simple UI)
+
+### ⌨️ Via CLI
+
+```bash
 python chatbot.py
+```
 
-Type questions to get responses with source metadata. Type exit to quit.
+Type your questions directly in the terminal. Type `exit` to quit.
 
+---
 
-Project Structure
+## 🗄️ Project Structure
+
+```
 your-repo/
 ├── books/
-│   └── english/          # Folder for PDF documents (manually place PDFs here)
-├── chroma_db/            # ChromaDB persistence directory
-├── templates/            # Folder for basic web UI templates
-├── main.py               # FastAPI application for API and web UI
-├── processing.py         # Script to process PDFs and store embeddings
-├── chain.py              # RAG pipeline and conversational logic
-├── .env                  # Environment variables (must be created)
-├── requirements.txt      # Dependencies (included in project)
+│   └── english/          # Place your PDFs here manually
+├── chroma_db/            # Chroma persistence folder
+├── templates/            # HTML templates (basic UI)
+├── main.py               # FastAPI application
+├── processing.py         # PDF embedding logic
+├── chain.py              # RAG + Gemini pipeline  
+├── .env                  # Contains GOOGLE_API_KEY
+├── requirements.txt      # Required packages
 └── README.md             # This file
+```
 
-Extending the Project
+---
 
-File Upload UI: Add file upload functionality to the web UI to place PDFs in books/english.
-Persistent Storage: Use a hosted Chroma instance or FAISS/Pinecone for scalability.
-Enhanced UI: Upgrade the web UI with Streamlit or React.
-Advanced Retrieval: Implement hybrid search or re-ranking.
-Authentication: Add API key or OAuth for secure access.
-Custom Prompts: Modify the prompt template for domain-specific responses.
+## 🔧 Extending the Project
 
-Troubleshooting
+* 📂 **Add File Upload UI** to auto-place PDFs in `books/english`
+* 📊 **Switch to Hosted Chroma**, Pinecone, or FAISS for large-scale use
+* 🚀 **Upgrade UI** with Streamlit or React frontend
+* 🤖 **Auth Layer** with tokens or OAuth
+* 🌍 **Custom Prompt Templates** for domain-specific use cases
 
-Missing .env File: Ensure the .env file has a valid GOOGLE_API_KEY.
-Dependency Issues: Run pip install -r requirements.txt to ensure all dependencies are installed.
-ChromaDB Issues: Verify the chroma_db folder is writable and embeddings are generated.
-PDF Processing: Ensure valid PDFs are in books/english. No file upload is available.
-Web UI Issues: Check that templates in the templates folder are correctly configured.
+---
 
-Contributing
-Contributions are welcome! Open an issue or submit a pull request on GitHub.
-License
-This project is licensed under the MIT License.
+## ⚠️ Troubleshooting
+
+* **Missing `.env`**: Make sure `GOOGLE_API_KEY` is set
+* **PDF Not Processed**: Ensure your files are in `books/english` and rerun `processing.py`
+* **Web UI Not Loading**: Check `templates/` folder exists
+* **Embedding Errors**: Make sure your HuggingFace model and ChromaDB are installed properly
+
+---
+
+## 🌟 Author
+
+Built by **Umair Memon**
+GitHub: [umair741](https://github.com/umair741)
+Email: [umics38@gmail.com](mailto:umics38@gmail.com)
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License**.
