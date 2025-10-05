@@ -22,13 +22,22 @@ def load_chatbot():
         output_key="answer"
     )
 
-    # Custom prompt template
+  # Custom prompt template
     custom_prompt = ChatPromptTemplate.from_messages([
         SystemMessagePromptTemplate.from_template(
-            "You are a helpful assistant. Use the provided context and conversation history to answer the user's question clearly.\n{context}"
+            """You are a helpful and concise AI assistant always reply greeting with hi hello how r u how can i assit you today. 
+    Use the context provided below from relevant documents to answer the user's question accurately.
+    - Only use the information present in the context.
+    - Do not make up answers.
+    - Keep your answers short and to the point.
+    - If the answer is not found in the context, politely say "I don't know" or "The information is not available."
+
+    Context:
+    {context}"""
         ),
         HumanMessagePromptTemplate.from_template("{question}")
     ])
+
 
     # Gemini model with fix for SystemMessage
     llm = ChatGoogleGenerativeAI(
@@ -46,21 +55,17 @@ def load_chatbot():
         verbose=True
     )
     return qa_chain
+
+
+qa_chain = load_chatbot()
+
+
 def ask_question(question: str) -> dict:
-    chain = load_chatbot()
-    result = chain.invoke({"question": question})
 
-    sources = []
-    for doc in result.get("source_documents", []):
-        sources.append({
-            "filename": doc.metadata.get("filename", "Unknown"),
-            "page": doc.metadata.get("page", "N/A")
-        })
+    result = qa_chain.invoke({"question": question})
 
-    return {
-        "answer": result["answer"],
-        "sources": sources
-    }
+    return {"answer": result["answer"]}
+
 
 
 if __name__ == "__main__":

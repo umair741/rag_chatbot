@@ -12,8 +12,16 @@ persist_directory = "chroma_db"
 embedding_function = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
 
+
 def get_pdf_paths(folder):
-    return [os.path.join(folder, f) for f in os.listdir(folder) if f.lower().endswith(".pdf")]
+    files = os.listdir(folder)            
+    pdf_files = []                          
+
+    for f in files:
+        if f.lower().endswith(".pdf"):      
+            pdf_files.append(os.path.join(folder, f))  
+
+    return pdf_files
 
 
 def extract_documents(file_path):
@@ -38,47 +46,73 @@ def split_documents(documents, chunk_size=1000, chunk_overlap=100):
         chunk.metadata["chunk_id"] = f"{chunk.metadata.get('filename', 'file')}_chunk_{idx}"
     return split_docs
 
-
-def create_embeddings(chunks):
-    texts, filtered_chunks = [], []
-    for doc in chunks:
-        content = doc.page_content.strip()
-        if content:
-            texts.append(content)
-            filtered_chunks.append(doc)
-    embeddings = embedding_function.embed_documents(texts)
-    return filtered_chunks, embeddings
+def filter_empty_chunks(chunks):
+    return [doc for doc in chunks if doc.page_content.strip()]
 
 
-def store_embeddings(chunks, embeddings):
+
+def store_embeddings(chunks): 
     os.makedirs(persist_directory, exist_ok=True)
     db = Chroma.from_documents(
         documents=chunks,
         embedding=embedding_function,
         persist_directory=persist_directory
     )
-    db.persist()
 
+def process_pdf_batch(pdf_paths_batch):
 
+    batch_chunks = []
+    failed_files=[]
+    
+    for path in pdf_paths_batch:
+        try:
+            docs = extract_documents(path)
+            chunks = split_documents(docs)
+            batch_chunks.extend(chunks)
+        except Exception as e:
+            filename=os.path.basename(path)
+            print(f"❌ Error processing {filename}: {str(e)}")
+            failed_files.append(filename)
+            
+            continue  
+          
+    # Report at end
+    if failed_files:
+        print(f"⚠️  Failed files in this batch: {len(failed_files)}")
+    
+    return batch_chunks
+        
+        
 def process_all_pdfs():
     if not os.path.exists(PDF_DIR):
         raise FileNotFoundError(f"PDF folder not found: {PDF_DIR}")
 
     pdf_paths = get_pdf_paths(PDF_DIR)
+
     if not pdf_paths:
         raise ValueError("No PDF files found.")
+    
+        
+    print(f"📁 Total PDFs: {len(pdf_paths)}")
+    
+    batch_size = 10
+    
+    # Har batch ko process karo
+    for i in range(0, len(pdf_paths), batch_size):
+        batch = pdf_paths[i:i + batch_size]
+        
+        # Batch process
+        batch_chunks = process_pdf_batch(batch)
+        
+        # Filter aur save
+        if batch_chunks:
+            filtered_chunks = filter_empty_chunks(batch_chunks)
+            store_embeddings(filtered_chunks)
+            print(f"✅ Batch {i//batch_size + 1}: {len(filtered_chunks)} chunks")
+    
+    print("🎉 All done!")
+    
 
-    all_chunks = []
-    for path in pdf_paths:
-        docs = extract_documents(path)
-        chunks = split_documents(docs)
-        all_chunks.extend(chunks)
-
-    if not all_chunks:
-        raise ValueError("No content chunks generated.")
-
-    filtered_chunks, embeddings = create_embeddings(all_chunks)
-    store_embeddings(filtered_chunks, embeddings)
 
 if __name__ == "__main__":
     process_all_pdfs()

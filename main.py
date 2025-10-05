@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
-
+from fastapi import BackgroundTasks
 from processing import process_all_pdfs
 from chain import ask_question
 
@@ -31,9 +31,9 @@ async def serve_index(request: Request):
 
 # Process PDFs
 @app.post("/process")
-def process():
+def process(background_tasks: BackgroundTasks):
     try:
-        process_all_pdfs()
+        background_tasks.add_task(process_all_pdfs)
         return {"message": "PDF documents processed and stored."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

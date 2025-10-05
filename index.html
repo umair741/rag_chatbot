@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auth Portal</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  .container {
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 3rem;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+    border: 1px solid rgba(255,255,255,0.2);
+    position: relative;
+    overflow: hidden;
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-weight: 700;
+    font-size: 2rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .tab-container {
+    display: flex;
+    margin-bottom: 2rem;
+    background: #f7fafc;
+    border-radius: 12px;
+    padding: 4px;
+  }
+  .tab {
+    flex: 1;
+    padding: 0.75rem;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    color: #718096;
+  }
+  .tab.active { color: #667eea; background: white; box-shadow: 0 4px 12px rgba(102,126,234,0.15); }
+
+  .form-container { position: relative; min-height: 300px; }
+  form {
+    position: absolute;
+    width: 100%;
+    opacity: 0;
+    transform: translateX(20px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+  }
+  form.active { opacity: 1; transform: translateX(0); pointer-events: auto; }
+
+  .input-group { position: relative; margin-bottom: 1.5rem; }
+  input, select {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1rem;
+    background: #fafafa;
+    outline: none;
+    position: relative;
+    z-index: 2;
+  }
+  input:focus, select:focus { border-color: #667eea; background: white; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+  .input-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #a0aec0; font-size: 1rem; z-index: 1; pointer-events: none; }
+
+  button {
+    width: 100%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 1rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .response-section { margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e2e8f0; }
+  pre {
+    background: #1a202c;
+    color: #e2e8f0;
+    padding: 1.5rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    overflow-x: auto;
+    border-left: 4px solid #667eea;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .success { border-left-color: #48bb78; background: #f0fff4; color: #2d3748; }
+  .error { border-left-color: #f56565; background: #fff5f5; color: #2d3748; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Auth Portal</h1>
+
+  <div class="tab-container">
+    <div class="tab active" data-tab="login">Login</div>
+    <div class="tab" data-tab="signup">Sign Up</div>
+  </div>
+
+  <div class="form-container">
+    <form id="loginForm" class="active">
+      <div class="input-group">
+        <input type="text" id="loginUsername" placeholder="Username" required>
+        <span class="input-icon">👤</span>
+      </div>
+      <div class="input-group">
+        <input type="password" id="loginPassword" placeholder="Password" required>
+        <span class="input-icon">🔒</span>
+      </div>
+      <button type="submit">Sign In</button>
+    </form>
+
+    <form id="signupForm">
+      <div class="input-group">
+        <input type="text" id="signupUsername" placeholder="Username" required>
+        <span class="input-icon">👤</span>
+      </div>
+      <div class="input-group">
+        <input type="password" id="signupPassword" placeholder="Password" required>
+        <span class="input-icon">🔒</span>
+      </div>
+      <div class="input-group">
+        <select id="signupRole">
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <button type="submit">Create Account</button>
+    </form>
+  </div>
+
+  <div class="response-section">
+    <div class="response-title">Server Response</div>
+    <pre id="response">Awaiting response...</pre>
+  </div>
+</div>
+
+<script>
+const responseBox = document.getElementById("response");
+
+// Tab switching
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const targetTab = tab.dataset.tab;
+
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    document.querySelectorAll('form').forEach(f => {
+      if(f.id === targetTab+'Form') {
+        f.classList.add('active');
+        f.style.pointerEvents = "auto";
+      } else {
+        f.classList.remove('active');
+        f.style.pointerEvents = "none";
+      }
+    });
+  });
+});
+
+// Helper to show response
+function showResponse(data, isError=false){
+  responseBox.innerText = JSON.stringify(data,null,2);
+  responseBox.className = isError?"error":"success";
+}
+
+// Signup
+document.getElementById("signupForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const username = document.getElementById("signupUsername").value;
+  const password = document.getElementById("signupPassword").value;
+  const role = document.getElementById("signupRole").value;
+
+  showResponse({status:"Processing signup..."});
+
+  try{
+    const res = await fetch("http://127.0.0.1:8000/signup",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({username,password,role})
+    });
+    const data = await res.json();
+    showResponse(data,!res.ok);
+    if(res.ok) document.getElementById("signupForm").reset();
+  }catch(err){
+    showResponse({error:err.message},true);
+  }
+});
+
+// Login
+document.getElementById("loginForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const username = document.getElementById("loginUsername").value;
+  const password = document.getElementById("loginPassword").value;
+
+  showResponse({status:"Processing login..."});
+
+  try{
+    const res = await fetch("http://127.0.0.1:8000/login",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({username,password})
+    });
+    const data = await res.json();
+    showResponse(data,!res.ok);
+
+    if(res.ok){
+      document.getElementById("loginForm").reset();
+      // Save token for testing protected/admin routes
+      localStorage.setItem("access_token", data.access_token);
+    }
+  }catch(err){
+    showResponse({error:err.message},true);
+  }
+});
+
+// Example: Access protected route (optional buttons can be added for testing)
+async function testProtectedRoute(url){
+  const token = localStorage.getItem("access_token");
+  if(!token){ showResponse({error:"Login first!"},true); return; }
+
+  try{
+    const res = await fetch(url,{
+      headers: {"Authorization": "Bearer "+token}
+    });
+    const data = await res.json();
+    showResponse(data,!res.ok);
+  }catch(err){
+    showResponse({error:err.message},true);
+  }
+}
+</script>
+</body>
+</html>
