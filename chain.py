@@ -19,18 +19,21 @@ def load_chatbot():
     memory = ConversationBufferMemory(
         memory_key="chat_history",
         return_messages=True,
-        output_key="answer"
+        output_key="answer",
+        k=10  # Keep only last 10 exchanges
     )
 
   # Custom prompt template
     custom_prompt = ChatPromptTemplate.from_messages([
         SystemMessagePromptTemplate.from_template(
-            """You are a helpful and concise AI assistant always reply greeting with hi hello how r u how can i assit you today. 
-    Use the context provided below from relevant documents to answer the user's question accurately.
-    - Only use the information present in the context.
-    - Do not make up answers.
-    - Keep your answers short and to the point.
-    - If the answer is not found in the context, politely say "I don't know" or "The information is not available."
+                """You are a helpful AI assistant. 
+    -if user is greeting with ALways reply with Hi, I’m Umair, your assistant. How can I assist you today
+    - Use only the context provided from relevant documents to answer questions. 
+    - Answer concisely and accurately. 
+    - Do NOT greet the user unless the user explicitly asks for a greeting. 
+    - If the answer is not in the context, say "I don't know" or "The information is not available."
+    - Stay on topic and do not add extra commentary.
+    "
 
     Context:
     {context}"""

@@ -76,7 +76,6 @@ def process_pdf_batch(pdf_paths_batch):
             
             continue  
           
-    # Report at end
     if failed_files:
         print(f"⚠️  Failed files in this batch: {len(failed_files)}")
     
