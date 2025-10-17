@@ -1,64 +1,52 @@
-# RAG Chatbot with Gemini, FastAPI, LangChain, and ChromaDB
+# 🧠 EstateGenius – Real Estate AI Chatbot (RAG System)
 
-This project is a Retrieval-Augmented Generation (RAG) chatbot that processes PDF documents, stores their embeddings in ChromaDB, and generates context-aware responses using Google's Gemini API, LangChain, and FastAPI. The chatbot retrieves relevant information from a vectorized knowledge base of PDF documents and supports interaction via a command-line interface (CLI), a FastAPI-based API, or a basic web UI. **PDF documents must be manually placed in the `books/english` folder**, as the project does not include a file upload UI.
-
----
-
-## 💡 Tech Stack
-
-* **Python 3.10**: Core programming language
-* **FastAPI**: Asynchronous web framework for the API
-* **LangChain**: Framework for managing the RAG pipeline and workflows
-* **Google Gemini API (`gemini-2.0-flash`)**: For response generation
-* **HuggingFace Embeddings (`all-MiniLM-L6-v2`)**: For creating document embeddings
-* **ChromaDB**: Persistent vector database
-* **PyPDF**: For PDF text extraction
-* **Uvicorn**: ASGI server for FastAPI
-* **python-dotenv**: Environment variable loader
-* **Jinja2**: For basic HTML templates (web UI)
+**EstateGenius** is an intelligent **Real Estate Assistant** powered by **FastAPI**, **LangChain**, **ChromaDB**, and **Gemini (Google Generative AI)**.
+It helps users get real estate insights directly from uploaded PDFs — with authentication, admin dashboard, and JWT-based role management.
 
 ---
 
-## 🌟 Features
+## 🚀 Features
 
-* 📄 **PDF Processing**: Extracts text from PDFs in `books/english`
-* 💡 **RAG Pipeline**: Combines document retrieval with LLM generation
-* 📊 **ChromaDB Vector Store**: Efficient similarity search
-* ⚖️ **Conversational Memory**: Maintains history for context
-* 🚀 **FastAPI Backend**: RESTful and async
-* ⌨️ **CLI Support**: Ask questions from terminal
-* 📃 **Web UI**: Basic HTML-based interface (no file upload)
-
----
-
-## ✅ Prerequisites
-
-* Python 3.9 or higher
-* Google Cloud account with Gemini API key
-* PDF documents in the `books/english` folder
-* `.env` file with your Gemini API key (see below)
+✅ Role-based Authentication (Admin & User)
+✅ Secure JWT Access + Refresh Tokens
+✅ Admin Dashboard for PDF Upload
+✅ Automatic Document Processing (Chunking + Embedding)
+✅ Conversational Retrieval-Augmented Generation (RAG)
+✅ Persistent Chroma Vector Store
+✅ Memory-enabled Conversations
+✅ Professionally formatted AI responses for real estate insights
 
 ---
 
-## 🚧 Installation & Setup
+## 🧩 Tech Stack
+
+| Layer                    | Technology                     |
+| ------------------------ | ------------------------------ |
+| **Backend**              | FastAPI                        |
+| **LLM / AI**             | LangChain + Google Gemini      |
+| **Vector Store**         | ChromaDB                       |
+| **Embeddings**           | HuggingFace (all-MiniLM-L6-v2) |
+| **Auth**                 | JWT (Access + Refresh)         |
+| **Database**             | PostgreSQL                     |
+| **Frontend (Templates)** | HTML (Jinja2 Templates)        |
+
+---
+
+## ⚙️ Setup Guide
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/your-repo.git
-cd your-repo
+git clone https://github.com/umair741/rag_chatbot.git
+cd rag_chatbot
 ```
 
 ### 2. Create a Virtual Environment
 
 ```bash
 python -m venv venv
-
-# Activate
-# Windows:
-venv\Scripts\activate
-# macOS/Linux:
-source venv/bin/activate
+venv\Scripts\activate     # On Windows
+# source venv/bin/activate  # On Mac/Linux
 ```
 
 ### 3. Install Dependencies
@@ -67,117 +55,175 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4. Set Up Environment Variables
+### 4. Create `.env` File
 
-Create a `.env` file in the root with your Gemini API key:
-
-```env
-GOOGLE_API_KEY=your_google_api_key
-```
-
----
-
-## 📚 Add Your Documents
-
-> **No file upload UI is provided.** You must manually add your `.pdf` files into:
+In the root directory, add:
 
 ```
-books/english/
+# --- API Keys ---
+GOOGLE_API_KEY=your_google_gemini_api_key_here
+
+# --- Database ---
+DATABASE_URL=postgresql://postgres:yourpassword@localhost:5432/Dataforrag
+
+# --- Admin Credentials ---
+ADMIN_NAME=Admin
+ADMIN_EMAIL=admin@gmail.com
+ADMIN_PASSWORD=StrongP@ssw0rd!
+
+# --- JWT Settings ---
+SECRET_KEY=your_secret_key_here
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=300
+REFRESH_TOKEN_EXPIRE_DAYS=7
 ```
 
----
+### 5. Initialize Database
 
-## 🚀 Running the Project
-
-### Step 1: Process PDFs
+Make sure PostgreSQL is running, then create tables:
 
 ```bash
-python processing.py
+python db.py
 ```
 
-This extracts text, generates embeddings, and stores them in `chroma_db/`
+You can also manually create an admin using:
 
-### Step 2: Start the API
+```bash
+python create_admin.py
+```
+
+---
+
+## 🧠 Run the Application
+
+### 1. Start FastAPI Server
 
 ```bash
 uvicorn main:app --reload
 ```
 
-* API: [http://localhost:8000/docs](http://localhost:8000/docs)
-* Web UI: [http://localhost:8000/](http://localhost:8000/)
+Server will start at:
+👉 [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 ---
 
-## 🎧 Interact with the Bot
+## 🧱 Folder Structure
 
-### 🛠️ Via API
+```
+rag_chatbot/
+│
+├── main.py                # FastAPI app (routes + auth)
+├── chain.py               # LangChain RAG logic
+├── processor.py           # PDF processing & embeddings
+├── db.py                  # Database configuration
+├── models.py              # SQLAlchemy models
+├── schema.py              # Pydantic schemas
+├── token_logic.py         # JWT creation & verification
+├── create_admin.py        # Script to create admin user
+│
+├── templates/
+│   ├── login.html
+│   ├── signup.html
+│   ├── dashboard.html
+│   ├── admin.html
+│
+├── books/english/         # Folder for uploaded PDFs
+├── chroma_db/             # Persistent vector store
+├── .env                   # Environment variables (ignored by Git)
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## 🔐 Authentication Flow
+
+1. **Signup** – Creates a normal user
+2. **Login** – Returns JWT tokens (access + refresh)
+3. **Admin** – Can upload new PDFs and trigger embedding
+4. **User** – Can query the chatbot via `/ask`
+
+---
+
+## 🧾 API Routes Overview
+
+| Method | Route               | Description               | Auth          |
+| ------ | ------------------- | ------------------------- | ------------- |
+| `POST` | `/signup`           | Register new user         | ❌             |
+| `POST` | `/login`            | Login user (returns JWTs) | ❌             |
+| `POST` | `/logout`           | Clear session             | ✅             |
+| `POST` | `/refresh`          | Refresh access token      | ✅             |
+| `POST` | `/admin/upload-pdf` | Upload new PDFs           | 🔒 Admin only |
+| `POST` | `/ask`              | Ask chatbot questions     | ✅ User        |
+| `GET`  | `/dashboard`        | User dashboard            | ✅ User        |
+| `GET`  | `/admin`            | Admin dashboard           | 🔒 Admin      |
+
+---
+
+## 💬 Example Chat (CLI mode)
 
 ```bash
-curl -X POST "http://localhost:8000/chat" \
--H "Content-Type: application/json" \
--d '{"message": "What is RAG?"}'
+python chain.py
 ```
 
-### 🌐 Via Web UI
-
-Go to: [http://localhost:8000/](http://localhost:8000/)
-(Type your question in the simple UI)
-
-### ⌨️ Via CLI
-
-```bash
-python chatbot.py
 ```
-
-Type your questions directly in the terminal. Type `exit` to quit.
-
----
-
-## 🗄️ Project Structure
-
-```
-your-repo/
-├── books/
-│   └── english/          # Place your PDFs here manually
-├── chroma_db/            # Chroma persistence folder
-├── templates/            # HTML templates (basic UI)
-├── main.py               # FastAPI application
-├── processing.py         # PDF embedding logic
-├── chain.py              # RAG + Gemini pipeline  
-├── .env                  # Contains GOOGLE_API_KEY
-├── requirements.txt      # Required packages
-└── README.md             # This file
+🤖 Chatbot CLI
+You: Hi
+Bot: Hi, I'm EstateGenius, your intelligent real estate assistant. How can I help you today?
 ```
 
 ---
 
-## 🔧 Extending the Project
+## 🧠 Example Admin Workflow
 
-* 📂 **Add File Upload UI** to auto-place PDFs in `books/english`
-* 📊 **Switch to Hosted Chroma**, Pinecone, or FAISS for large-scale use
-* 🚀 **Upgrade UI** with Streamlit or React frontend
-* 🤖 **Auth Layer** with tokens or OAuth
-* 🌍 **Custom Prompt Templates** for domain-specific use cases
-
----
-
-## ⚠️ Troubleshooting
-
-* **Missing `.env`**: Make sure `GOOGLE_API_KEY` is set
-* **PDF Not Processed**: Ensure your files are in `books/english` and rerun `processing.py`
-* **Web UI Not Loading**: Check `templates/` folder exists
-* **Embedding Errors**: Make sure your HuggingFace model and ChromaDB are installed properly
+1. Login as admin
+2. Upload PDF files via `/admin/upload-pdf`
+3. PDFs are processed → chunks → embeddings stored in ChromaDB
+4. Ask questions → Bot answers using document context
 
 ---
 
-## 🌟 Author
+## 🧰 Example Question
 
-Built by **Umair Memon**
-GitHub: [umair741](https://github.com/umair741)
-Email: [umics38@gmail.com](mailto:umics38@gmail.com)
+```
+Q: What is the average rental yield in Green Valley?
+```
+
+**Bot:**
+
+```
+📍 Green Valley Market Overview
+
+• Average rental yield: 5.2% annually  
+• Popular property types: 3-4 bedroom homes  
+• Price range: $350,000 – $500,000
+
+This area offers stable returns and consistent appreciation trends.
+```
 
 ---
 
-## 📄 License
+## 🧤 Security Notes
 
-This project is licensed under the **MIT License**.
+* `.env` is excluded from Git (`.gitignore`)
+* Never commit API keys or passwords
+* Rotate your JWT secret periodically
+* Restrict `/admin` access properly
+
+---
+
+## 🧑‍💻 Author
+
+**Umair Memon**
+AI Developer & Automation Specialist
+🔗 [GitHub](https://github.com/umair741)
+💼 [Fiverr](https://www.fiverr.com/)
+
+---
+
+## 🪄 License
+
+MIT License © 2025 Umair Memon
+Free to use, modify, and distribute.
+
+---
