@@ -2,12 +2,13 @@
 from db import SessionLocal
 import models
 from security import hash_password
+import os
 
 db = SessionLocal()
 
-ADMIN_NAME = "Admin"
-ADMIN_EMAIL = "admin@gmail.com"
-ADMIN_PASSWORD = "StrongP@ssw0rd!"  # Must satisfy your password rules
+ADMIN_NAME = os.getenv("ADMIN_NAME")
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
 existing_admin = db.query(models.User).filter(models.User.email == ADMIN_EMAIL).first()
 if existing_admin:
