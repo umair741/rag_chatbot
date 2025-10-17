@@ -5,8 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_URL = "postgresql://postgres:umairmemon38#@localhost:5432/Dataforrag"
-
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Create SQLAlchemy engine
 engine = create_engine(DATABASE_URL, pool_size=20, max_overflow=10)

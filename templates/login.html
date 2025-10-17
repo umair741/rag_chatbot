@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - EstateGenius</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);
+    top: -300px;
+    right: -200px;
+    border-radius: 50%;
+    animation: float 20s ease-in-out infinite;
+  }
+
+  body::after {
+    content: '';
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(16,185,129,0.06) 0%, transparent 70%);
+    bottom: -250px;
+    left: -150px;
+    border-radius: 50%;
+    animation: float 15s ease-in-out infinite reverse;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(30px, 30px) scale(1.1); }
+  }
+
+  .form-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(59,130,246,0.15);
+    padding: 3rem;
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 440px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .logo {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .logo-icon {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    margin: 0 auto 1rem;
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.25);
+    animation: pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 8px 20px rgba(59,130,246,0.25); }
+    50% { box-shadow: 0 8px 30px rgba(59,130,246,0.4); }
+  }
+
+  .logo-text {
+    font-size: 1.75rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.25rem;
+  }
+
+  .logo-subtitle {
+    font-size: 0.75rem;
+    color: rgba(30,41,59,0.6);
+    letter-spacing: 1.5px;
+    font-weight: 500;
+  }
+
+  h2 {
+    color: #1e293b;
+    font-size: 1.875rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    font-weight: 700;
+  }
+
+  .subtitle {
+    color: rgba(30,41,59,0.6);
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  label {
+    display: block;
+    color: #1e293b;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  input {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    border: 2px solid rgba(59,130,246,0.2);
+    background: rgba(255,255,255,0.8);
+    color: #1e293b;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    font-family: inherit;
+  }
+
+  input::placeholder {
+    color: rgba(30,41,59,0.4);
+  }
+
+  input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
+  }
+
+  .error {
+    color: #dc2626;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    padding: 0.875rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    display: none;
+    font-weight: 500;
+  }
+
+  .error.show {
+    display: block;
+    animation: shake 0.4s ease;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+  }
+
+  button {
+    width: 100%;
+    padding: 1.125rem;
+    background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+    margin-top: 0.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  button:hover::before {
+    width: 300px;
+    height: 300px;
+  }
+
+  button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+  }
+
+  button:active {
+    transform: translateY(0);
+  }
+
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .signup-link {
+    margin-top: 1.75rem;
+    text-align: center;
+    color: rgba(30,41,59,0.6);
+    font-size: 0.95rem;
+  }
+
+  .signup-link a {
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: 700;
+    transition: color 0.2s;
+  }
+
+  .signup-link a:hover {
+    color: #2563eb;
+    text-decoration: underline;
+  }
+
+  @media (max-width: 640px) {
+    body {
+      padding: 1rem;
+    }
+
+    .form-container {
+      padding: 2rem 1.5rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+    }
+
+    .logo-icon {
+      width: 60px;
+      height: 60px;
+      font-size: 1.8rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="form-container">
+  <div class="logo">
+    <div class="logo-icon">🏢</div>
+    <div class="logo-text">EstateGenius</div>
+    <div class="logo-subtitle">INTELLIGENT PROPERTY SOLUTIONS</div>
+  </div>
+  
+  <h2>Welcome Back</h2>
+  <p class="subtitle">Sign in to access your real estate assistant</p>
+
+  <div class="error" id="errorMsg"></div>
+
+  <div class="form-group">
+    <label for="email">Email Address</label>
+    <input type="email" id="email" placeholder="Enter your email" />
+  </div>
+
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input type="password" id="password" placeholder="Enter your password" />
+  </div>
+
+  <button id="loginBtn">Sign In</button>
+
+  <p class="signup-link">Don't have an account? <a href="/signup">Create Account</a></p>
+</div>
+
+<script>
+const loginBtn = document.getElementById('loginBtn');
+const errorMsg = document.getElementById('errorMsg');
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+
+// Check if already logged in
+async function checkIfLoggedIn() {
+  try {
+    const res = await fetch('/ask', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: 'auth_check' })
+    });
+    
+    if (res.ok) {
+      // Already logged in, redirect based on role
+      const role = localStorage.getItem('user_role');
+      window.location.href = role === 'admin' ? '/admin' : '/dashboard';
+    }
+  } catch (err) {
+    // Not logged in, stay on login page
+  }
+}
+
+checkIfLoggedIn();
+
+function showError(message) {
+    errorMsg.textContent = message;
+    errorMsg.classList.add('show');
+    setTimeout(() => {
+        errorMsg.classList.remove('show');
+    }, 4000);
+}
+
+loginBtn.addEventListener('click', async () => {
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+
+    if(!email || !password){
+        showError("Please fill all fields.");
+        return;
+    }
+
+    loginBtn.disabled = true;
+    loginBtn.textContent = "Signing in...";
+
+    try {
+        const res = await fetch('/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+        if(res.ok){
+            // Store tokens and user info in localStorage (backup)
+            localStorage.setItem('access_token', data.access_token);
+            localStorage.setItem('refresh_token', data.refresh_token);
+            localStorage.setItem('user_role', data.role);
+            localStorage.setItem('user_name', data.name);
+
+            // Cookie is automatically set by backend
+            // Redirect based on role
+            if(data.role === "admin"){
+                window.location.href = '/admin';
+            } else {
+                window.location.href = '/dashboard';
+            }
+        } else {
+            showError(data.detail || "Login failed");
+        }
+    } catch(err){
+        showError("Server error. Try again.");
+    } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = "Sign In";
+    }
+});
+
+// Enter key support
+[emailInput, passwordInput].forEach(input => {
+    input.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter') loginBtn.click();
+    });
+});
+</script>
+
+</body>
+</html>
