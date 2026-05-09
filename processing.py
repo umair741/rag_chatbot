@@ -2,25 +2,24 @@ import os
 from dotenv import load_dotenv
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import Chroma
+from langchain_community.vectorstores import Pinecone as PineconeVectorStore
+from pinecone import Pinecone
 from langchain_community.embeddings import HuggingFaceEmbeddings
-
 load_dotenv()
 
 PDF_DIR = "books/english"
-persist_directory = "chroma_db"
 embedding_function = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
+pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+index_name = os.getenv("PINECONE_INDEX_NAME")
 
 
 def get_pdf_paths(folder):
-    files = os.listdir(folder)            
-    pdf_files = []                          
-
+    files = os.listdir(folder)
+    pdf_files = []
     for f in files:
-        if f.lower().endswith(".pdf"):      
-            pdf_files.append(os.path.join(folder, f))  
-
+        if f.lower().endswith(".pdf"):
+            pdf_files.append(os.path.join(folder, f))
     return pdf_files
 
 
@@ -46,71 +45,61 @@ def split_documents(documents, chunk_size=1000, chunk_overlap=100):
         chunk.metadata["chunk_id"] = f"{chunk.metadata.get('filename', 'file')}_chunk_{idx}"
     return split_docs
 
+
 def filter_empty_chunks(chunks):
     return [doc for doc in chunks if doc.page_content.strip()]
 
 
+def store_embeddings(chunks):
+    index = pc.Index(index_name)
+    stats = index.describe_index_stats()
 
-def store_embeddings(chunks): 
-    os.makedirs(persist_directory, exist_ok=True)
-    db = Chroma.from_documents(
+    if stats['total_vector_count'] > 0:
+        print("⚠️ Embeddings already exist — skipping!")
+        return
+
+    PineconeVectorStore.from_documents(
         documents=chunks,
         embedding=embedding_function,
-        persist_directory=persist_directory
+        index_name=index_name
     )
+    print("✅ Embeddings stored in Pinecone!")
+
 
 def process_pdf_batch(pdf_paths_batch):
-
     batch_chunks = []
-    failed_files=[]
-    
+    failed_files = []
     for path in pdf_paths_batch:
         try:
             docs = extract_documents(path)
             chunks = split_documents(docs)
             batch_chunks.extend(chunks)
         except Exception as e:
-            filename=os.path.basename(path)
+            filename = os.path.basename(path)
             print(f"❌ Error processing {filename}: {str(e)}")
             failed_files.append(filename)
-            
-            continue  
-          
+            continue
     if failed_files:
-        print(f"⚠️  Failed files in this batch: {len(failed_files)}")
-    
+        print(f"⚠️ Failed files: {len(failed_files)}")
     return batch_chunks
-        
-        
+
+
 def process_all_pdfs():
     if not os.path.exists(PDF_DIR):
         raise FileNotFoundError(f"PDF folder not found: {PDF_DIR}")
-
     pdf_paths = get_pdf_paths(PDF_DIR)
-
     if not pdf_paths:
         raise ValueError("No PDF files found.")
-    
-        
     print(f"📁 Total PDFs: {len(pdf_paths)}")
-    
     batch_size = 10
-    
-    # Har batch ko process karo
     for i in range(0, len(pdf_paths), batch_size):
         batch = pdf_paths[i:i + batch_size]
-        
-        # Batch process
         batch_chunks = process_pdf_batch(batch)
-        
-        # Filter aur save
         if batch_chunks:
             filtered_chunks = filter_empty_chunks(batch_chunks)
             store_embeddings(filtered_chunks)
             print(f"✅ Batch {i//batch_size + 1}: {len(filtered_chunks)} chunks")
-    
     print("🎉 All done!")
-    
 
 
 if __name__ == "__main__":
