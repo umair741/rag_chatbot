@@ -5,14 +5,14 @@ WORKDIR /app
 # Copy requirements first for better Docker caching
 COPY requirements.txt .
 
-# Install Python dependencies with specific flags to avoid compilation issues
-RUN pip install --no-cache-dir --only-binary=all -r requirements.txt
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of your application code
 COPY . .
 
-# Expose port (Railway needs this)
+# Expose port 8000 for Koyeb
 EXPOSE 8000
 
-# Run your main application
-CMD ["python", "main.py"]
+# Run your FastAPI application using uvicorn
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

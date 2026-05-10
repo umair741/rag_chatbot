@@ -1,6 +1,6 @@
 # 🧠 EstateGenius – Real Estate AI Chatbot (RAG System)
 
-**EstateGenius** is an intelligent **Real Estate Assistant** powered by **FastAPI**, **LangChain**, **ChromaDB**, and **Gemini (Google Generative AI)**.
+**EstateGenius** is an intelligent **Real Estate Assistant** powered by **FastAPI**, **LangChain**, **Pinecone**, and **Gemini (Google Generative AI)**.
 It helps users get real estate insights directly from uploaded PDFs — with authentication, admin dashboard, and JWT-based role management.
 
 ---
@@ -12,8 +12,8 @@ It helps users get real estate insights directly from uploaded PDFs — with aut
 ✅ Admin Dashboard for PDF Upload
 ✅ Automatic Document Processing (Chunking + Embedding)
 ✅ Conversational Retrieval-Augmented Generation (RAG)
-✅ Persistent Chroma Vector Store
-✅ Memory-enabled Conversations
+✅ Persistent Pinecone Vector Store
+✅ Database-backed Memory-enabled Conversations
 ✅ Professionally formatted AI responses for real estate insights
 
 ---
@@ -24,7 +24,7 @@ It helps users get real estate insights directly from uploaded PDFs — with aut
 | ------------------------ | ------------------------------ |
 | **Backend**              | FastAPI                        |
 | **LLM / AI**             | LangChain + Google Gemini      |
-| **Vector Store**         | ChromaDB                       |
+| **Vector Store**         | Pinecone                       |
 | **Embeddings**           | HuggingFace (all-MiniLM-L6-v2) |
 | **Auth**                 | JWT (Access + Refresh)         |
 | **Database**             | PostgreSQL                     |
@@ -62,9 +62,12 @@ In the root directory, add:
 ```
 # --- API Keys ---
 GOOGLE_API_KEY=your_google_gemini_api_key_here
+PINECONE_API_KEY=your_pinecone_api_key_here
+PINECONE_INDEX_NAME=your_pinecone_index_name_here
 
 # --- Database ---
 DATABASE_URL=postgresql://postgres:yourpassword@localhost:5432/Dataforrag
+# If using Supabase, replace with your Supabase Postgres connection string.
 
 # --- Admin Credentials ---
 ADMIN_NAME=Admin
@@ -114,7 +117,7 @@ rag_chatbot/
 │
 ├── main.py                # FastAPI app (routes + auth)
 ├── chain.py               # LangChain RAG logic
-├── processor.py           # PDF processing & embeddings
+├── processing.py          # PDF processing & embeddings
 ├── db.py                  # Database configuration
 ├── models.py              # SQLAlchemy models
 ├── schema.py              # Pydantic schemas
@@ -128,7 +131,6 @@ rag_chatbot/
 │   ├── admin.html
 │
 ├── books/english/         # Folder for uploaded PDFs
-├── chroma_db/             # Persistent vector store
 ├── .env                   # Environment variables (ignored by Git)
 ├── requirements.txt
 └── README.md
@@ -178,7 +180,7 @@ Bot: Hi, I'm EstateGenius, your intelligent real estate assistant. How can I hel
 
 1. Login as admin
 2. Upload PDF files via `/admin/upload-pdf`
-3. PDFs are processed → chunks → embeddings stored in ChromaDB
+3. PDFs are processed → chunks → embeddings stored in Pinecone
 4. Ask questions → Bot answers using document context
 
 ---
