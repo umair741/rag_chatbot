@@ -3,10 +3,11 @@ from dotenv import load_dotenv
 from langchain_community.vectorstores import Pinecone as PineconeVectorStore
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.memory import ConversationBufferMemory
 from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from langchain.chains import ConversationalRetrievalChain
 from pinecone import Pinecone
+from sqlalchemy.orm import Session
+from models import ChatHistory
 
 load_dotenv()
 
@@ -22,13 +23,6 @@ def load_chatbot():
         text_key="text"
     )
     retriever = db.as_retriever()
-
-    memory = ConversationBufferMemory(
-        memory_key="chat_history",
-        return_messages=True,
-        output_key="answer",
-        k=10
-    )
 
     custom_prompt = ChatPromptTemplate.from_messages([
         SystemMessagePromptTemplate.from_template(
@@ -77,7 +71,6 @@ Context:
     qa_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
         retriever=retriever,
-        memory=memory,
         return_source_documents=True,
         combine_docs_chain_kwargs={"prompt": custom_prompt},
         verbose=True
@@ -88,15 +81,33 @@ Context:
 qa_chain = load_chatbot()
 
 
-def ask_question(question: str) -> dict:
-    result = qa_chain.invoke({"question": question})
-    return {"answer": result["answer"]}
+def ask_question(question: str, user_id: int, db: Session) -> dict:
+    # 1. Fetch last 10 messages for context
+    past_chats = db.query(ChatHistory).filter(ChatHistory.user_id == user_id).order_by(ChatHistory.id.desc()).limit(10).all()
+    # Reverse to get chronological order
+    past_chats.reverse()
+    
+    chat_history = [(c.question, c.answer) for c in past_chats]
+
+    # 2. Ask question with context
+    result = qa_chain.invoke({"question": question, "chat_history": chat_history})
+    answer = result["answer"]
+
+    # 3. Save new interaction
+    new_chat = ChatHistory(user_id=user_id, question=question, answer=answer)
+    db.add(new_chat)
+    db.commit()
+
+    return {"answer": answer}
 
 
 if __name__ == "__main__":
     print("🤖 Chatbot CLI")
+    chat_history = []
     while True:
         q = input("You: ")
         if q.lower() == "exit":
             break
-        print("Bot:", ask_question(q))
+        result = qa_chain.invoke({"question": q, "chat_history": chat_history})
+        print("Bot:", result["answer"])
+        chat_history.append((q, result["answer"]))

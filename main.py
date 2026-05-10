@@ -149,7 +149,7 @@ def upload_pdf(
 # Chat / Ask Route
 # ----------------------
 @app.post("/ask")
-def ask(question: Question, current_user: dict = Depends(verify_token)):
+def ask(question: Question, current_user: dict = Depends(verify_token), db: Session = Depends(get_db)):
     """Protected route - requires authentication"""
-    response = ask_question(question.question)
+    response = ask_question(question.question, current_user["user_id"], db)
     return response
